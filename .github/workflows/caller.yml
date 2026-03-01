@@ -1,0 +1,11 @@
+name: Caller – Reusable CI (Node)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-reusable:
+    name: Call reusable-ci.yml
+    uses: ./.github/workflows/reusable-ci.yml
+    with:
+      node-version: '18'
