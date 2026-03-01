@@ -1,0 +1,24 @@
+
+name: Lab-Demo
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: Run Lab-Demo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Print a message
+        run: echo "GitHub Actions working!"
+
+      - name: List files in repository
+        run: ls -la
