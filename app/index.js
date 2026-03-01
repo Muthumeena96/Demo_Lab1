@@ -1,1 +1,1 @@
-console.log("Hello from app/index.js");
+console.log("Testing workflow trigger");
