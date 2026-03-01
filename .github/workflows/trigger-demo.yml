@@ -1,0 +1,17 @@
+name: Trigger Demo
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  show-trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print which trigger ran
+        run: echo "Triggered by ${{ github.event_name }}"
