@@ -1,0 +1,67 @@
+name: Matrix Build & Summary
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20]
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Measure duration
+        id: duration
+        shell: bash
+        run: |
+          start=$(date +%s)
+          npm ci || true
+          npm test || true
+          end=$(date +%s)
+          echo "$((end-start))" > duration.txt
+          echo "seconds=$((end-start))" >> "$GITHUB_OUTPUT"   # step output
+
+      - name: Upload duration
+        uses: actions/upload-artifact@v4
+        with:
+          name: duration-${{ matrix.os }}-node${{ matrix.node }}
+          path: duration.txt
+
+  summarize:
+    name: Summarize fastest job
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download durations
+        uses: actions/download-artifact@v4
+        with:
+          pattern: duration-*
+          path: durations
+
+      - name: Find fastest
+        shell: bash
+        run: |
+          fastest=999999
+          fastest_job=""
+          while IFS= read -r -d '' f; do
+            t=$(tr -d '\r' < "$f")
+            job=$(echo "$f" | sed 's#durations/##; s#/duration.txt##')
+            echo "$job took ${t}s"
+            if [ "$t" -lt "$fastest" ]; then
+              fastest="$t"
+              fastest_job="$job"
+            fi
+          done < <(find durations -name duration.txt -print0)
+          echo "FASTEST: $fastest_job (${fastest}s)"
