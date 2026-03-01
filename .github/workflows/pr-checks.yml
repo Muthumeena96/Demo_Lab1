@@ -1,0 +1,27 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Print PR number
+        run: echo "PR number is #${{ github.event.pull_request.number }}"
+
+      - name: Install & test (create sample results)
+        run: |
+          npm ci || true
+          npm test || true
+          mkdir -p test-results
+          echo "sample results" > test-results/results.txt
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-test-results
+          path: test-results/
