@@ -1,1 +1,1 @@
-console.log("Testing workflow trigger");
+console.log("trigger");
